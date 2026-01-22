@@ -1,58 +1,45 @@
-<!doctype html>
-<html lang="id">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Permission Timing Test (Safe)</title>
-  <style>
-    body { font-family: system-ui, sans-serif; padding: 16px; line-height: 1.4; }
-    button { padding: 12px 16px; font-size: 16px; }
-    .box { margin-top: 12px; padding: 12px; border: 1px solid #ddd; border-radius: 10px; }
-    code { background: #f5f5f5; padding: 2px 6px; border-radius: 6px; }
-  </style>
-</head>
-<body>
-  <h2>Safe PoC: Delay → Permission Prompt → Redirect</h2>
-  <p>
-    Ini untuk menguji apakah prompt permission tetap terikat ke <b>origin</b> yang benar
-    walaupun ada timing/redirect.
-  </p>
-
-  <button id="btn">Start test (3s delay)</button>
-
-  <div class="box" id="log"></div>
-
+<html>
+ <head> 
+  <meta charset="utf-8">
+<style>
+.button {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+</style>
+ </head> 
+ <body> 
   <script>
-    const logEl = document.getElementById("log");
-    function log(msg) {
-      const t = new Date().toISOString();
-      logEl.innerHTML += `<div><code>${t}</code> ${msg}</div>`;
-    }
+function a(){
+  const w = screen.availWidth;
+  const h = screen.availHeight;
 
-    async function requestCamera() {
-      log("Requesting CAMERA permission now...");
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        log("Camera permission GRANTED (stream obtained). Stopping tracks.");
-        stream.getTracks().forEach(t => t.stop());
-      } catch (e) {
-        log(`Camera permission FAILED/DENIED: ${e.name}`);
-      }
-    }
+    window.open(
+      "https://google.com",
+      "popup",
+      `
+  width=${screen.availWidth},
+  height=${screen.availHeight},
+  left=0,
+  top=0,
+  resizable=yes,
+  scrollbars=yes
+  `);
 
-    document.getElementById("btn").addEventListener("click", async () => {
-      log(`Clicked. Current origin: ${location.origin}`);
-      log("Waiting 3 seconds...");
-
-      await new Promise(r => setTimeout(r, 3000));
-
-      // 1) Trigger the real permission prompt (camera)
-      await requestCamera();
-
-      // 2) Redirect to YOUR OWN test page (same origin)
-      log("Redirecting to /after.html (same origin, safe) ...");
-      location.href = "https://google.com";
-    });
-  </script>
-</body>
+    setTimeout(() => {
+    const ok = prompt("username");
+    if (ok) window.location.href = "https://example.com/next-page";
+  }, 3000);
+}
+</script> 
+  <center><input type="button" class="button" value="Go to Google.com" onclick="a()"> </center>
+ </body>
 </html>
