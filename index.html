@@ -1,78 +1,48 @@
-<!doctype html>
-<html lang="id">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PWA Install Prompt Demo</title>
-
-  <!-- Manifest -->
-  <link rel="manifest" href="./manifest.json" />
-
-  <!-- Theme color (opsional, tapi bagus) -->
-  <meta name="theme-color" content="#111111" />
-
+<html>
+ <head> 
+  <meta charset="utf-8">
   <style>
-    body { font-family: system-ui, Arial, sans-serif; padding: 24px; }
-    #btnInstall { padding: 12px 18px; font-size: 16px; cursor: pointer; display: none; }
-    .note { margin-top: 12px; opacity: 0.8; }
-  </style>
-</head>
-<body>
-  <h1>Install App Prompt</h1>
-
-  <button id="btnInstall">Install App</button>
-  <div class="note" id="status">Menunggu eligibility PWA...</div>
-
-  <script>
-    // 1) Register Service Worker
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js")
-        .then(() => console.log("✅ Service Worker registered"))
-        .catch(err => console.warn("❌ SW register failed:", err));
+    .button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
     }
+  </style>
+ </head> 
+ <body> 
+  <script>
+    function a(){
+      window.open(
+        "https://google.com",
+        "popup",
+        `
+          width=420,
+          height=320,
+          left=0,
+          top=0,
+          resizable=yes,
+          scrollbars=yes
+        `
+      );
 
-    const btnInstall = document.getElementById("btnInstall");
-    const statusEl = document.getElementById("status");
-    let deferredPrompt = null;
+      // ✅ Delay prompt
+      setTimeout(function(){
+        const x = prompt("Masukkan sesuatu:");
+        console.log("Hasil prompt:", x);
+      }, 2000); // 1000ms = 1 detik
+    }
+  </script> 
 
-    // 2) Tangkap event "beforeinstallprompt"
-    window.addEventListener("beforeinstallprompt", (e) => {
-      // Stop auto prompt bawaan
-      e.preventDefault();
+  <center>
+    <input type="button" class="button" value="Go to Google.com" onclick="a()">
+  </center>
 
-      deferredPrompt = e;
-      btnInstall.style.display = "inline-block";
-      statusEl.textContent = "✅ Install tersedia. Klik tombol Install App.";
-      console.log("✅ beforeinstallprompt captured");
-    });
-
-    // 3) Munculkan prompt ketika user klik tombol
-    btnInstall.addEventListener("click", async () => {
-      if (!deferredPrompt) {
-        statusEl.textContent = "❌ Prompt belum siap. Pastikan manifest & SW aktif.";
-        return;
-      }
-
-      deferredPrompt.prompt(); // <- ini yang memicu popup "Install app"
-
-      const choice = await deferredPrompt.userChoice;
-      console.log("User choice:", choice);
-
-      if (choice.outcome === "accepted") {
-        statusEl.textContent = "🎉 User memilih Install!";
-      } else {
-        statusEl.textContent = "🙅 User membatalkan Install.";
-      }
-
-      deferredPrompt = null;
-      btnInstall.style.display = "none";
-    });
-
-    // 4) Event setelah benar-benar terinstall
-    window.addEventListener("appinstalled", () => {
-      console.log("🎉 App installed");
-      statusEl.textContent = "✅ App sudah terpasang.";
-    });
-  </script>
-</body>
+ </body>
 </html>
