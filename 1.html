@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chromium API PoC Dashboard</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+        .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h2 { font-size: 1.2rem; color: #333; margin-top: 0; }
+        button { 
+            width: 100%; padding: 10px; cursor: pointer; 
+            background: #4285f4; color: white; border: none; border-radius: 4px; 
+        }
+        button:hover { background: #357ae8; }
+        .status { margin-top: 10px; font-size: 0.8rem; color: #666; word-break: break-all; }
+    </style>
+</head>
+<body>
+
+    <h1>Chromium API Permission Tester</h1>
+    <p>Klik tombol untuk memicu dialog izin asli dari browser.</p>
+
+    <div class="grid">
+        <!-- 1. Media -->
+        <div class="card">
+            <h2>Media (Camera/Mic)</h2>
+            <button onclick="testCamera()">Minta Kamera</button>
+            <div id="status-camera" class="status">Menunggu...</div>
+        </div>
+
+        <!-- 2. Location -->
+        <div class="card">
+            <h2>Geolocation</h2>
+            <button onclick="testLocation()">Minta Lokasi</button>
+            <div id="status-location" class="status">Menunggu...</div>
+        </div>
+
+        <!-- 3. Notifications -->
+        <div class="card">
+            <h2>Notifications</h2>
+            <button onclick="testNotification()">Minta Notifikasi</button>
+            <div id="status-notification" class="status">Menunggu...</div>
+        </div>
+
+        <!-- 4. Screen Capture -->
+        <div class="card">
+            <h2>Screen Share</h2>
+            <button onclick="testScreen()">Pilih Layar</button>
+            <div id="status-screen" class="status">Menunggu...</div>
+        </div>
+
+        <!-- 5. File System -->
+        <div class="card">
+            <h2>File Access</h2>
+            <button onclick="testFile()">Buka File Picker</button>
+            <div id="status-file" class="status">Menunggu...</div>
+        </div>
+
+        <!-- 6. Bluetooth -->
+        <div class="card">
+            <h2>Bluetooth</h2>
+            <button onclick="testBluetooth()">Cari Perangkat</button>
+            <div id="status-bluetooth" class="status">Menunggu...</div>
+        </div>
+
+        <!-- 7. USB -->
+        <div class="card">
+            <h2>WebUSB</h2>
+            <button onclick="testUSB()">Cari Perangkat USB</button>
+            <div id="status-usb" class="status">Menunggu...</div>
+        </div>
+
+        <!-- 8. WebAuthn -->
+        <div class="card">
+            <h2>Biometrics (Passkey)</h2>
+            <button onclick="testAuth()">Picu Windows Hello/TouchID</button>
+            <div id="status-auth" class="status">Menunggu...</div>
+        </div>
+    </div>
+
+    <script>
+        const log = (id, msg) => document.getElementById(`status-${id}`).innerText = msg;
+
+        async function testCamera() {
+            try {
+                await navigator.mediaDevices.getUserMedia({ video: true });
+                log('camera', '✅ Izin Diberikan');
+            } catch (e) { log('camera', '❌ ' + e.message); }
+        }
+
+        function testLocation() {
+            navigator.geolocation.getCurrentPosition(
+                () => log('location', '✅ Izin Diberikan'),
+                (e) => log('location', '❌ ' + e.message)
+            );
+        }
+
+        async function testNotification() {
+            const res = await Notification.requestPermission();
+            log('notification', `Status: ${res}`);
+        }
+
+        async function testScreen() {
+            try {
+                await navigator.mediaDevices.getDisplayMedia();
+                log('screen', '✅ Berhasil Memilih Layar');
+            } catch (e) { log('screen', '❌ ' + e.message); }
+        }
+
+        async function testFile() {
+            try {
+                const [handle] = await window.showOpenFilePicker();
+                log('file', `✅ File terpilih: ${handle.name}`);
+            } catch (e) { log('file', '❌ ' + e.message); }
+        }
+
+        async function testBluetooth() {
+            try {
+                const dev = await navigator.bluetooth.requestDevice({ acceptAllDevices: true });
+                log('bluetooth', `✅ Terpilih: ${dev.name}`);
+            } catch (e) { log('bluetooth', '❌ ' + e.message + ' (Pastikan Bluetooth menyala)'); }
+        }
+
+        async function testUSB() {
+            try {
+                const dev = await navigator.usb.requestDevice({ filters: [] });
+                log('usb', `✅ USB: ${dev.productName}`);
+            } catch (e) { log('usb', '❌ ' + e.message); }
+        }
+
+        async function testAuth() {
+            log('auth', 'Memicu dialog sistem...');
+            // Minimal challenge untuk memicu dialog biometrik
+            const challenge = new Uint8Array(32);
+            window.crypto.getRandomValues(challenge);
+            try {
+                await navigator.credentials.get({ publicKey: { challenge, timeout: 60000, allowCredentials: [] } });
+            } catch (e) { log('auth', 'Pop-up muncul, tapi dibatalkan/error.'); }
+        }
+    </script>
+</body>
+</html>
