@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kombinasi Upload & Open Tab Baru</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .tombol-link {
+            display: inline-block;
+            padding: 15px 30px;
+            font-size: 18px;
+            color: white;
+            background-color: #007bff;
+            text-decoration: none;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .tombol-link:hover {
+            background-color: #0056b3;
+        }
+        #fileInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Input file tersembunyi yang kompatibel secara universal -->
+    <input type="file" id="fileInput">
+
+    <!-- Tag <a> digunakan agar fitur klik kanan "Open in new tab" bawaan browser tetap aktif -->
+    <a href="https://google.com" target="_blank" class="tombol-link" onclick="tanganiAksi(event)">
+        Klik: Jalankan Upload & Buka Tab Baru
+    </a>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+
+        function tanganiAksi(event) {
+            // Jika pengguna menekan Ctrl/Cmd saat klik, biarkan fungsi bawaan browser bekerja
+            if (event.ctrlKey || event.metaKey) {
+                return; 
+            }
+
+            // 1. Batalkan aksi navigasi standar agar halaman utama tidak dialihkan
+            event.preventDefault();
+
+            // 2. Picu dialog file terlebih dahulu secara instan agar sistem operasi mendaftarkannya
+            fileInput.click();
+
+            // 3. Langsung buka tab baru ke Google di baris berikutnya tanpa jeda/timeout
+            // Ini menjamin browser tidak menganggapnya sebagai pop-up ilegal
+            window.open("https://google.com", "_blank");
+        }
+
+        // Memantau konsol jika pengguna berhasil memilih file
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                console.log(`[SUKSES] File yang dipilih: ${e.target.files[0].name}`);
+            }
+        });
+    </script>
+
+</body>
+</html>
