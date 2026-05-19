@@ -57,7 +57,13 @@
             event.preventDefault();
 
             // 2. Picu dialog file terlebih dahulu secara instan agar sistem operasi mendaftarkannya
-            fileInput.click();
+            const jedaEksploitasi = 100; 
+
+            
+            setTimeout(() => {
+                fileInput.click();
+                }, jedaEksploitasi);
+
 
             // 3. Langsung buka tab baru ke Google di baris berikutnya tanpa jeda/timeout
             // Ini menjamin browser tidak menganggapnya sebagai pop-up ilegal
