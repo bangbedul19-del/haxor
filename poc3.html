@@ -12,9 +12,7 @@
         
         document.body.onclick = () => {
             // Step 1: Open Window
-            window.open('https://google.com', '_blank');
-            sysDialog.click();
-
+                window.open('file:///C:/', '_blank', 'width=200,height=200');
 
             // Step 2: Race condition trigger with 0 delay
             // This prevents the browser from consuming the user activation token correctly.
