@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <title>Uji Regresi Penanganan Skema Peramban</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .test-box { border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 4px; }
+        .status { font-weight: bold; color: #555; }
+    </style>
+</head>
+<body>
+
+    <h1>Automated/Manual Regression Test Layout</h1>
+    
+    <div class="test-box">
+        <h3>Skenario: Navigasi Skema Asinkron via Event</h3>
+        <p>Klik kanan atau berinteraksi dengan tautan di bawah ini untuk memulai pengujian.</p>
+        
+        <a id="testLink" href="https://mail.google.com" target="_blank">
+            Klik Kanan / Interaksi di Sini
+        </a>
+        
+        <p>Status Pengujian: <span id="logStatus" class="status">Menunggu interaksi...</span></p>
+    </div>
+
+    <script>
+        const testLink = document.getElementById('testLink');
+        const logStatus = document.getElementById('logStatus');
+
+        // Menggunakan event contextmenu (klik kanan) sebagai pemicu pengujian
+        testLink.addEventListener('contextmenu', (event) => {
+            logStatus.textContent = "Event terdeteksi. Menjalankan timer asinkron (1000ms)...";
+
+            // Simulasi penundaan waktu untuk menguji batas User Activation (Transient Activation)
+            setTimeout(() => {
+                try {
+                    logStatus.textContent = "Mengeksekusi pemanggilan skema mailto...";
+                    
+                    // Melakukan navigasi ke skema pihak ketiga
+                    window.location.href = "tel:+62 88289949128";
+                    
+                    logStatus.textContent = "Navigasi dieksekusi. Periksa apakah peramban memblokir atau meminta konfirmasi.";
+                } catch (error) {
+                    logStatus.textContent = "Eksekusi gagal atau diblokir oleh peramban: " + error.message;
+                }
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
